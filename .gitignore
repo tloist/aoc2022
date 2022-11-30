@@ -1,0 +1,9 @@
+.bsp
+.idea
+.dotty*
+.bloop
+.bsp
+.sdkmanrc
+.envrc
+days/*/src/main/resources/input?.txt
+**/target

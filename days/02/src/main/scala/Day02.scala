@@ -64,19 +64,11 @@ extension (tuple: (Play, GameResult))
         case (Scissor, Draw) => Scissor
         case (Scissor, Loss) => Paper
 
-def readPlays(input: String): List[(Play, Play)] = {
+def readPlays[X,Y](input: String)(part1: String => X, part2: String => Y): List[(X, Y)] = {
   input.split("\n").map { line =>
     val parts = line.split(" ")
     if (parts.size != 2) throw new java.lang.IllegalArgumentException(s"Illegal line with ${parts.size} elements instead of 2 plays!")
-    (Play.fromString(parts(0)), Play.fromString(parts(1)))
-  }.toList
-}
-
-def readPlayAndResults(input: String): List[(Play, GameResult)] = {
-  input.split("\n").map { line =>
-    val parts = line.split(" ")
-    if (parts.size != 2) throw new java.lang.IllegalArgumentException(s"Illegal line with ${parts.size} elements instead of 2 plays!")
-    (Play.fromString(parts(0)), GameResult.fromString(parts(1)))
+    (part1(parts(0)), part2(parts(1)))
   }.toList
 }
 
@@ -84,13 +76,13 @@ def score(plays: List[(Play, Play)]) = plays.map(_.result.score).sum + plays.map
         
 @main def part1(): Unit = {
   val input = Resource.asString("inputA.txt").getOrElse(throw new IllegalStateException("Couldn't read input file"))
-  val theScore = score(readPlays(input))
+  val theScore = score(readPlays(input)(Play.fromString, Play.fromString))
   println(s"Score according to strategy play is: $theScore")
 }
 
 @main def part2(): Unit = {
   val input = Resource.asString("inputA.txt").getOrElse(throw new IllegalStateException("Couldn't read input file"))
-  val playAndResults = readPlayAndResults(input)
+  val playAndResults = readPlays(input)(Play.fromString, GameResult.fromString)
   val plays = playAndResults.map(t => (t._1, t.requiredPlay))
   val theScore = score(plays)
   println(s"Score according to strategy play is: $theScore")

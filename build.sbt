@@ -9,7 +9,8 @@ scalacOptions ++= (
 
 name := "Advent of Code 2022"
 
-lazy val day01 = dayProject(1, "???")
+lazy val day01 = dayProject(1, "Calorie Counting")
+lazy val day02 = dayProject(2, "Rock Paper Scissors")
 
 
 lazy val common = project

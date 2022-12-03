@@ -11,6 +11,7 @@ name := "Advent of Code 2022"
 
 lazy val day01 = dayProject(1, "Calorie Counting")
 lazy val day02 = dayProject(2, "Rock Paper Scissors")
+lazy val day03 = dayProject(3, "Rucksack Reorganization")
 
 
 lazy val common = project

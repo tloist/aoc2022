@@ -2,8 +2,8 @@ import better.files.Resource
 
 case class Range(from: Int, to: Int) {
     def fullyContains(that: Range): Boolean = this.from <= that.from && this.to >= that.to
-    def isSeparete(that: Range): Boolean = this.to < that.from || this.from > that.to
-    def overlaps(that: Range): Boolean = !isSeparete(that)
+    def isSeparate(that: Range): Boolean = this.to < that.from || this.from > that.to
+    def overlaps(that: Range): Boolean = !isSeparate(that)
 }
 
 object Range:

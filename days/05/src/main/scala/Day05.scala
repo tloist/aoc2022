@@ -1,15 +1,32 @@
 import better.files.Resource
 
+trait CrateMover:
+    def rearrange(initial: List[String], order: Rearrangement): List[String]
+
+object CrateMover9000 extends CrateMover {
+    def rearrangeSingle(initial: List[String], from: Int, to: Int): List[String] =
+        val originStack = initial(from - 1)
+        initial
+            .updated(from - 1, originStack.tail)
+            .updated(to - 1, originStack.head + initial(to - 1))
+    def rearrange(initial: List[String], order: Rearrangement): List[String] = (1 to order.count).foldLeft(initial) { (input, _) => 
+        (1 to order.count).foldLeft(initial) { (res, _) => rearrangeSingle(res, order.from, order.to) }
+    }
+}
+
+object CrateMover9001 extends CrateMover {
+    def rearrange(initial: List[String], order: Rearrangement): List[String] = (1 to order.count).foldLeft(initial) { (input, _) =>
+        val originStack = initial(order.from - 1)
+        initial
+            .updated(order.from - 1, originStack.drop(order.count))
+            .updated(order.to - 1, originStack.take(order.count) + initial(order.to - 1))
+    }
+}
+
 case class Rearrangement(count: Int, from: Int, to: Int)
 case class CraneYard(stacks: List[String]) {
-    def rearrangeSingle(from: Int, to: Int): CraneYard =
-        val originStack = stacks(from - 1)
-        CraneYard(stacks
-            .updated(from - 1, originStack.tail)
-            .updated(to - 1, originStack.head + stacks(to - 1)))
-    
-    def rearrange(order: Rearrangement): CraneYard = (1 to order.count).foldLeft(this) { (res, _) => res.rearrangeSingle(order.from, order.to) }
-    def rearrange(orders: Iterable[Rearrangement]): CraneYard = orders.foldLeft(this) { (res, order) => res.rearrange(order) }
+    def rearrange(order: Rearrangement)(using mover: CrateMover): CraneYard = CraneYard(mover.rearrange(stacks, order))
+    def rearrange(orders: Iterable[Rearrangement])(using CrateMover): CraneYard = orders.foldLeft(this) { (res, order) => res.rearrange(order) }
 }
 
 object CraneYard:
@@ -36,9 +53,17 @@ def readInput(input: String): (CraneYard, List[Rearrangement]) =
 
 
 @main def part1(): Unit = {
+    given mover: CrateMover = CrateMover9000
     val input = Resource.asString("inputA.txt").getOrElse(throw new IllegalStateException("Couldn't read input file"))
     val (craneYard, rearrangements) = readInput(input)
     val resultYard = craneYard.rearrange(rearrangements)
     println(s"The resulting head crates are '${resultYard.stacks.map(_.head).mkString}'")
+}
 
+@main def part2(): Unit = {
+    given mover: CrateMover = CrateMover9001
+    val input = Resource.asString("inputA.txt").getOrElse(throw new IllegalStateException("Couldn't read input file"))
+    val (craneYard, rearrangements) = readInput(input)
+    val resultYard = craneYard.rearrange(rearrangements)
+    println(s"The resulting head crates are '${resultYard.stacks.map(_.head).mkString}'")
 }

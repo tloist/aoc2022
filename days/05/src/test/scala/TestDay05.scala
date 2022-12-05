@@ -12,7 +12,8 @@ val expectedOrders = List(
 val exampleYard = CraneYard(expectedStacks)
 
 
-class TestDay05 extends FunSuite {
+class TestDay05Part1 extends FunSuite {
+    given mover: CrateMover = CrateMover9000
 
     test("CraneYard is parsed correctly") {
         val (yard, _) = readInput(exampleInput)
@@ -42,5 +43,30 @@ class TestDay05 extends FunSuite {
     test("Craneyard after all 4 orders is correct") {
         val result = exampleYard.rearrange(expectedOrders)
         assertEquals(result.stacks, List("C", "M", "ZNDP"))
+    }
+}
+
+class TestDay05Part2 extends FunSuite {
+    given mover: CrateMover = CrateMover9001
+
+   
+    test("Craneyard after 1 order is correct") {
+        val result = exampleYard.rearrange(expectedOrders.head)
+        assertEquals(result.stacks, List("DNZ", "CM", "P"))
+    }
+
+    test("Craneyard after 2 orders is correct") {
+        val result = exampleYard.rearrange(expectedOrders.take(2))
+        assertEquals(result.stacks, List("", "CM", "DNZP"))
+    }
+
+    test("Craneyard after 3 orders is correct") {
+        val result = exampleYard.rearrange(expectedOrders.take(3))
+        assertEquals(result.stacks, List("CM", "", "DNZP"))
+    }
+
+    test("Craneyard after all 4 orders is correct") {
+        val result = exampleYard.rearrange(expectedOrders)
+        assertEquals(result.stacks, List("M", "C", "DNZP"))
     }
 }

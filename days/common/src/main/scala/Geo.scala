@@ -10,13 +10,18 @@ package geo {
     case class Map2D[C, V](content: Map[Point2D[C], V])
 
     object Map2D {
-        def fromResource[T](resourceName: String, charInterpreter: Char => T): Map2D[Int, T] =
-            val mapContent = (for {
-                    (line, y) <- Resource.getAsString(resourceName).linesIterator.zipWithIndex
-                    (char, x) <- line.zipWithIndex
-                } yield Point2D[Int](x, y) -> charInterpreter(char)
-            ).toMap
-            Map2D(mapContent)
+        def contentFrom[T](content: String, charInterpreter: Char => T): Map[Point2D[Int], T] =
+            (for {
+                (line, y) <- content.linesIterator.zipWithIndex
+                (char, x) <- line.zipWithIndex
+            } yield Point2D[Int](x, y) -> charInterpreter(char)
+        ).toMap
+
+        def contentFromRessource[T](resourceName: String, charInterpreter: Char => T): Map[Point2D[Int], T] =
+            contentFrom(Resource.getAsString(resourceName), charInterpreter)
+
+        def fromResource[T, V](resourceName: String, charInterpreter: Char => T, typeInit: Map[Point2D[Int], T] => V): V = typeInit(contentFromRessource(resourceName, charInterpreter))
+        def fromResource[T](resourceName: String, charInterpreter: Char => T): Map2D[Int, T] = fromResource(resourceName, charInterpreter, Map2D.apply)
     }
 
     extension [C: Numeric](p: Point2D[C])

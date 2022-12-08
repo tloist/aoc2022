@@ -1,7 +1,7 @@
 import File._
 
 sealed trait File {
-    def path: FilePath
+    val path: FilePath
     def size: BigInt
     def fullPath: String = path.fullPath  // TODO: Can I use export path.fullPath instead here?
     def filename = path.filename    // TODO: Can I use export path.filename instead here?

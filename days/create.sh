@@ -10,3 +10,4 @@ mkdir -p $1/src/main/resources
 mkdir -p $1/src/test/scala
 mkdir -p $1/src/test/resources
 touch $1/src/main/resources/inputA.txt
+touch $1/src/test/resources/example.txt

@@ -100,9 +100,7 @@ class TestShell extends FunSuite {
 
     test("Example finds the right directories ") {
         val result = Shell.newSystem.adapt(InputParser.parse(example))
-        val totalSpace = BigInt("70000000")
-        val requiredSpace = BigInt("30000000")
-        assertEquals(result.totalUsedSize, BigInt(95437))
+        assertEquals(result.totalUsedSize, BigInt(48381165))
     }
 
 }

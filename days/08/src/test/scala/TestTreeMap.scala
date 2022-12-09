@@ -6,15 +6,6 @@ val example: TreeMap = TreeMap.fromResource("example.txt")
 
 class TestTreeMap extends FunSuite {
 
-    test("Example: Is parsed correctly") {
-        val expected = """|30373
-                          |25512
-                          |65332
-                          |33549
-                          |35390""".stripMargin
-        assertEquals(example.asString(_.toString.head), expected)
-    }
-
     def checkVisiblity(name: String, p: Point, expectedVisibility: Boolean)(using loc: munit.Location): Unit = test(name) {
         if (!example.isVisible(p) == expectedVisibility) {
             val ownHeight = example.content(p)

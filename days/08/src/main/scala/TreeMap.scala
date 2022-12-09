@@ -1,5 +1,4 @@
 import geo._
-import javax.print.attribute.standard.PresentationDirection
 
 type Point = geo.Point2D[Int]
 type Vector = geo.Vector2D[Int]
@@ -39,7 +38,7 @@ class TreeMap(content: Map[Point, Int]) extends Map2D[Int, Int](content) {
         p.edgeNeighbors.toList.filter(content.contains).map(content)
 
     def rayFrom(p: Point, dir: Direction): LazyList[Point] =
-        LazyList.unfold(p) { cur => Option(cur.add(dir.asVector)).filter(content.contains).map(x => (x, x)) }
+        LazyList.unfold(p) { cur => Option(cur + dir.asVector).filter(content.contains).map(x => (x, x)) }
 }
 
 object TreeMap {

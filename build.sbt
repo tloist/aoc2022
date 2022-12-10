@@ -9,15 +9,16 @@ scalacOptions ++= (
 
 name := "Advent of Code 2022"
 
-lazy val day01 = dayProject(1, "Calorie Counting")
-lazy val day02 = dayProject(2, "Rock Paper Scissors")
-lazy val day03 = dayProject(3, "Rucksack Reorganization")
-lazy val day04 = dayProject(4, "Camp Cleanup")
-lazy val day05 = dayProject(5, "Supply Stacks")
-lazy val day06 = dayProject(6, "Tuning Trouble")
-lazy val day07 = dayProject(7, "No Space Left On Device")
-lazy val day08 = dayProject(8, "Treetop Tree House")
-lazy val day09 = dayProject(9, "Rope Bridge")
+lazy val day01 = dayProject( 1, "Calorie Counting")
+lazy val day02 = dayProject( 2, "Rock Paper Scissors")
+lazy val day03 = dayProject( 3, "Rucksack Reorganization")
+lazy val day04 = dayProject( 4, "Camp Cleanup")
+lazy val day05 = dayProject( 5, "Supply Stacks")
+lazy val day06 = dayProject( 6, "Tuning Trouble")
+lazy val day07 = dayProject( 7, "No Space Left On Device")
+lazy val day08 = dayProject( 8, "Treetop Tree House")
+lazy val day09 = dayProject( 9, "Rope Bridge")
+lazy val day10 = dayProject(10, "Cathode-Ray Tube")
 
 
 lazy val common = project

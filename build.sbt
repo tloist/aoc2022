@@ -19,6 +19,7 @@ lazy val day07 = dayProject( 7, "No Space Left On Device")
 lazy val day08 = dayProject( 8, "Treetop Tree House")
 lazy val day09 = dayProject( 9, "Rope Bridge")
 lazy val day10 = dayProject(10, "Cathode-Ray Tube")
+lazy val day11 = dayProject(11, "Monkey in the Middle")
 
 
 lazy val common = project

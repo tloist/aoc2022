@@ -10,8 +10,8 @@ class TestParsing extends FunSuite {
     assertEquals(monkeys(0).no, 0)
     assertEquals(monkeys(0).items, List(79, 98).map(BigInt.apply))
     assertEquals(monkeys(0).divisor, 23)
-    assertEquals(monkeys(0).target._2, 3)
-    assertEquals(monkeys(0).target._1, 2)
+    assertEquals(monkeys(0).target._2, 2)
+    assertEquals(monkeys(0).target._1, 3)
 
     assertEquals(monkeys(1).no, 1)
     assertEquals(monkeys(1).items, List(54, 65, 75, 74).map(BigInt.apply))

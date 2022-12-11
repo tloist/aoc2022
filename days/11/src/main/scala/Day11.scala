@@ -20,16 +20,17 @@ enum Expr:
     case Addition(l, r) => s"${l.toString} + ${r.toString}"
     case Multiplication(l, r) => s"${l.toString} * ${r.toString}"
 
-def parseExpr(line: String): Expr =
-  def parseToken(token: String): Expr = token.trim match
+object Expr:
+  def parse(line: String): Expr =
+    val tokens = line.split(" ")
+    val (left, right) = (parseToken(tokens(0)), parseToken(tokens(2)))
+    tokens(1).trim match
+      case "+" => Expr.Addition(left, right)
+      case "*" => Expr.Multiplication(left, right)
+  private def parseToken(token: String): Expr = token.trim match
     case number if number.forall(_.isDigit) => Expr.Literal(number.toInt)
     case "old" => Expr.Reference
     case _ => sys.error(s"Error parsing operator expression. Illegal token '$token'!")
-  val tokens = line.split(" ")
-  val (left, right) = (parseToken(tokens(0)), parseToken(tokens(2)))
-  tokens(1).trim match
-    case "+" => Expr.Addition(left, right)
-    case "*" => Expr.Multiplication(left, right)
 
 case class Monkey(
   no: Int,
@@ -46,39 +47,39 @@ case class Monkey(
   override def toString: String = f"Monkey($no%02d holds ${items.mkString(", ")} | new = $expr | check: x / $divisor?)"
 }
 
-def parseMonkey(input: String, expectedNo: Int): Monkey =
-  val lines = input.split("\n")
-  val lineMonkey = """Monkey (\d+):""".r
-  val lineItems = """\s*Starting items: (.*)""".r
-  val lineOp = """\s*Operation: new = (.*)""".r
-  val lineTest = """\s*Test: divisible by (\d+)""".r
-  val lineTestTrue = """\s*If true: throw to monkey (\d+)""".r
-  val lineTestFalse = """\s*If false: throw to monkey (\d+)""".r
-
-  lines.head match
-    case lineMonkey(no) => require(no.toInt == expectedNo, s"Expected to read monkey $expectedNo but got $no instead!")
-  val items = lines(1) match
-    case lineItems(itemline) => itemline.split(",").map(_.trim.toInt).map(BigInt.apply).toList
-  val opExpression = lines(2) match
-    case lineOp(operationLine) => parseExpr(operationLine)
-  val divisor = lines(3) match
-    case lineTest(number) => number.toInt
-  val targetTrue = lines(4) match
-    case lineTestTrue(no) => no.toInt
-  val targetFalse = lines(5) match
-    case lineTestFalse(no) => no.toInt
-  require(targetTrue != expectedNo, s"Bored monkey $expectedNo cannot throw an item to itself!")
-  require(targetFalse != expectedNo, s"Bored monkey $expectedNo cannot throw an item to itself!")
-  Monkey(
-    no = expectedNo,
-    items = items,
-    expr = opExpression,
-    divisor = divisor,
-    target = (targetFalse, targetTrue)
-  )
+object Monkey:
+  def parse(input: String, expectedNo: Int): Monkey =
+    val lines = input.split("\n")
+    lines.head match
+      case lineMonkey(no) => require(no.toInt == expectedNo, s"Expected to read monkey $expectedNo but got $no instead!")
+    val items = lines(1) match
+      case lineItems(itemline) => itemline.split(",").map(_.trim.toInt).map(BigInt.apply).toList
+    val opExpression = lines(2) match
+      case lineOp(operationLine) => Expr.parse(operationLine)
+    val divisor = lines(3) match
+      case lineTest(number) => number.toInt
+    val targetTrue = lines(4) match
+      case lineTestTrue(no) => no.toInt
+    val targetFalse = lines(5) match
+      case lineTestFalse(no) => no.toInt
+    require(targetTrue != expectedNo, s"Bored monkey $expectedNo cannot throw an item to itself!")
+    require(targetFalse != expectedNo, s"Bored monkey $expectedNo cannot throw an item to itself!")
+    Monkey(
+      no = expectedNo,
+      items = items,
+      expr = opExpression,
+      divisor = divisor,
+      target = (targetFalse, targetTrue)
+    )
+  private val lineMonkey = """Monkey (\d+):""".r
+  private val lineItems = """\s*Starting items: (.*)""".r
+  private val lineOp = """\s*Operation: new = (.*)""".r
+  private val lineTest = """\s*Test: divisible by (\d+)""".r
+  private val lineTestTrue = """\s*If true: throw to monkey (\d+)""".r
+  private val lineTestFalse = """\s*If false: throw to monkey (\d+)""".r
 
 def parseMonkeys(input: String): Vector[Monkey] =
-  input.split("\n\n").zipWithIndex.map(parseMonkey.tupled).toVector
+  input.split("\n\n").zipWithIndex.map(Monkey.parse.tupled).toVector
 
 case class MonkeyPlayfield(monkeys: Vector[Monkey], inspectionCount: Map[Int, Int] = Map.empty.withDefaultValue(0), relieveFactor: BigInt, normalizer: BigInt => BigInt = identity) {
 

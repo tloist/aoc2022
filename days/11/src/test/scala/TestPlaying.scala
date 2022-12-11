@@ -28,11 +28,17 @@ class TestPlaying extends FunSuite {
     assertEquals(exampleInitField.rounds(20).monkeyBusinessLevel, BigInt(10605))
   }
 
-  def exampleInitFieldPartB = MonkeyPlayfield(exampleMonkeys)
+  def exampleInitFieldPartB = MonkeyPlayfield.initializeWithNormalizer(exampleMonkeys)
 
   def checkMonkeyBusinessB(round: Int, expected: List[Int])(using loc: munit.Location): Unit =
     test(s"Part B: Checking monkey business after round $round") {
-      assertEquals(exampleInitFieldPartB.rounds(round).monkeyBusinesses, expected)
+      val field = exampleInitFieldPartB.rounds(round)
+      if (field.monkeyBusinesses != expected) {
+        println(field.inspectMonkeyBusiness(round))
+        println()
+        println(field.inspectItems(round))
+      }
+      assertEquals(field.monkeyBusinesses, expected)
     }
 
   checkMonkeyBusinessB(1, List(2, 4, 3, 6))

@@ -80,12 +80,12 @@ def parseMonkey(input: String, expectedNo: Int): Monkey =
 def parseMonkeys(input: String): Vector[Monkey] =
   input.split("\n\n").zipWithIndex.map(parseMonkey.tupled).toVector
 
-case class MonkeyPlayfield(monkeys: Vector[Monkey], inspectionCount: Map[Int, Int] = Map.empty.withDefaultValue(0), relieveFactor: Int = 1) {
+case class MonkeyPlayfield(monkeys: Vector[Monkey], inspectionCount: Map[Int, Int] = Map.empty.withDefaultValue(0), relieveFactor: BigInt, normalizer: BigInt => BigInt = identity) {
 
   def round: MonkeyPlayfield = monkeys.indices.foldLeft(this) { (field, monkeyNo) =>
     val monkey = field.monkeys(monkeyNo)
     monkey.items.foldLeft(field) { (itemField, item) => // His items do not change, because monkeys don't throw to themselves
-      val newWorryLevel = monkey.intensifyWorry(item) / relieveFactor
+      val newWorryLevel = normalizer(monkey.intensifyWorry(item) / relieveFactor)
       val targetMonkey = monkey.targetForWorryLevel(newWorryLevel)
       itemField.copy(
         inspectionCount = itemField.increasedInspectionFor(monkey.no),
@@ -97,8 +97,8 @@ case class MonkeyPlayfield(monkeys: Vector[Monkey], inspectionCount: Map[Int, In
   }
 
   def rounds: LazyList[MonkeyPlayfield] = LazyList.iterate(this)(_.round)
-  def monkeyBusinesses: List[Int] = inspectionCount.values.toList.sorted.reverse
-  def monkeyBusinessLevel: BigInt = monkeyBusinesses.take(2).map(BigInt.apply).product
+  def monkeyBusinesses: List[Int] = inspectionCount.values.toList
+  def monkeyBusinessLevel: BigInt = monkeyBusinesses.sorted.reverse.take(2).map(BigInt.apply).product
 
   def inspectItems(round: Int): String =
     val header = s"""After round $round, the monkeys are holding items with these worry levels"""
@@ -113,9 +113,18 @@ case class MonkeyPlayfield(monkeys: Vector[Monkey], inspectionCount: Map[Int, In
     inspectionCount.updatedWith(no)(prev => prev.map(_ + 1).orElse(Some(1)))
 }
 
+object MonkeyPlayfield {
+  def initializeWithNormalizer(monkeys: Vector[Monkey]): MonkeyPlayfield =
+    val commonGroup = monkeys.map(_.divisor).product
+    MonkeyPlayfield(monkeys, relieveFactor = 1, normalizer = (n: BigInt) => n % commonGroup)
+}
+
 def input: String = Resource.asString("inputA.txt").getOrElse(sys.error("Couldn't read input file"))
 
 @main def part1 =
   val monkeyField = MonkeyPlayfield(parseMonkeys(input), relieveFactor = 3)
   println(s"The level of monkey business after 20 rounds is ${monkeyField.rounds(20).monkeyBusinessLevel}")
 
+@main def part2 =
+  val monkeyField = MonkeyPlayfield.initializeWithNormalizer(parseMonkeys(input))
+  println(s"The level of monkey business after 10000 rounds is ${monkeyField.rounds(10000).monkeyBusinessLevel}")

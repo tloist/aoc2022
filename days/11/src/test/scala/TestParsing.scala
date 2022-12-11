@@ -6,7 +6,6 @@ class TestParsing extends FunSuite {
 
   test("Can read example input") {
     val monkeys = parseMonkeys(exampleInput)
-    monkeys.foreach(println)
 
     assertEquals(monkeys(0).no, 0)
     assertEquals(monkeys(0).items, List(79, 98).map(BigInt.apply))

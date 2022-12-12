@@ -9,6 +9,8 @@ import scala.annotation.targetName
 case class Point2D[C: Numeric](x: C, y: C) {
     def between(that: Point2D[C]): Vector2D[C] =
         Vector2D(this.x - that.x, this.y - that.y)
+    def manhattanDistance(that: Point2D[C]): C =
+        (this.x - that.x).abs + (this.y - that.y).abs
 
     @targetName("plus")
     def +(that: Vector2D[C]): Point2D[C] =
@@ -89,9 +91,11 @@ object Map2D {
     extension[V] (map: Map2D[Int, V])
         def size: Int = map.content.size
         def asString(valuePrinter: V => Char): String = {
-            val Rectangle(Point2D(minX, minY), Point2D(maxX, maxY)) = map.boundingBox
-            (minY to maxY).map { y =>
-                (minX to maxX).map(x => map.content.get(Point2D(x, y)).map(valuePrinter).getOrElse(' ')).mkString
+            val Rectangle(min, max) = map.boundingBox
+            (min.y to max.y).map { y =>
+                (min.x to max.x).map { x =>
+                    map.content.get(Point2D(x, y)).map(valuePrinter).getOrElse(' ')
+                }.mkString
             }.mkString("\n")
         }
 }

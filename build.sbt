@@ -23,6 +23,7 @@ lazy val day11 = dayProject(11, "Monkey in the Middle")
 lazy val day12 = dayProject(12, "Hill Climbing Algorithm")
 lazy val day13 = dayProject(13, "Distress Signal")
   .settings(libraryDependencies ++= Seq(catsParse))
+lazy val day14 = dayProject(14, "Regolith Reservoir")
 
 
 lazy val common = project

@@ -6,6 +6,11 @@ import better.files.*
 import math.Numeric.Implicits.infixNumericOps
 import scala.annotation.targetName
 
+extension [N: Numeric](n: N)
+    private def num = summon[Numeric[N]]
+    def until(end: N): LazyList[N] = LazyList.iterate(n) { c => c + num.one }.takeWhile(num.lt(_, end))
+    def to(end: N): LazyList[N] = until(end).appended(end)
+
 case class Point2D[C: Numeric](x: C, y: C) {
     def between(that: Point2D[C]): Vector2D[C] =
         Vector2D(this.x - that.x, this.y - that.y)
@@ -33,11 +38,30 @@ case class Point2D[C: Numeric](x: C, y: C) {
         Vector2D[C]( _1,  _1),
     ).map(this + _)
 
+    def andAllSurrounding: Set[Point2D[C]] =
+        (edgeNeighbors ++ cornerNeighbors) + this
+
     override def toString: String = s"P($x/$y)"
     private def _0: C = summon[Numeric[C]].zero
     private def _1: C = summon[Numeric[C]].one
 }
-case class Rectangle[C](p1: Point2D[C], p2: Point2D[C])
+case class Rectangle[C: Numeric](p1: Point2D[C], p2: Point2D[C]) {
+    def minMaxRectangle: Rectangle[C] = Rectangle.boundingBox(Seq(p1, p2))
+    def points: Seq[Point2D[C]] = Seq(p1, p2)
+
+    def enclosedPoints: Set[Point2D[C]] =
+        val minMax = minMaxRectangle
+        (for {
+            x <- minMax.p1.x to minMax.p2.x
+            y <- minMax.p1.y to minMax.p2.y
+        } yield Point2D(x, y)).toSet
+}
+
+object Rectangle:
+    def boundingBox[N: Numeric](ps: Iterable[Point2D[N]]): Rectangle[N] =
+        val xs = ps.map(_.x)
+        val ys = ps.map(_.y)
+        Rectangle(Point2D(xs.min, ys.min), Point2D(xs.max, ys.max))
 
 case class Vector2D[C: Numeric](x: C, y: C):
     @targetName("plus")
@@ -50,6 +74,7 @@ case class Vector2D[C: Numeric](x: C, y: C):
     override def toString: String = s"V($x/$y)"
 
 case class Map2D[C: Numeric, V](content: Map[Point2D[C], V]) {
+    export content.size
 
     def boundingBox: Rectangle[C] = Rectangle(
         Point2D[C](
@@ -59,6 +84,18 @@ case class Map2D[C: Numeric, V](content: Map[Point2D[C], V]) {
             content.keys.view.map(_.x).max,
             content.keys.view.map(_.y).max
         ))
+
+    def asString(valuePrinter: V => Char): String = asString(boundingBox, valuePrinter)
+    def asString(bbox: Rectangle[C], valuePrinter: V => Char): String = {
+        val Rectangle(min, max) = bbox.minMaxRectangle
+        (min.y to max.y).map { y =>
+            (min.x to max.x).map { x =>
+                content.get(Point2D(x, y)).map(valuePrinter).getOrElse(' ')
+            }.mkString
+        }.mkString("\n")
+    }
+    def environmentAsString(valuePrinter: V => Char, ps: Point2D[C]*): String =
+        asString(Rectangle.boundingBox(ps.flatMap(_.andAllSurrounding)), valuePrinter)
 
     def crawl(start: Point2D[C], neighbors: Point2D[C] => Iterable[Point2D[C]], continue: V => Boolean): List[Point2D[C]] = {
         def crawlRec(left: List[Point2D[C]], visited: Set[Point2D[C]], result: List[Point2D[C]]): List[Point2D[C]] = left match {
@@ -87,17 +124,6 @@ object Map2D {
 
     def fromResource[T, V](resourceName: String, charInterpreter: Char => T, typeInit: Map[Point2D[Int], T] => V): V = typeInit(contentFromRessource(resourceName, charInterpreter))
     def fromResource[T](resourceName: String, charInterpreter: Char => T): Map2D[Int, T] = fromResource(resourceName, charInterpreter, Map2D.apply)
-
-    extension[V] (map: Map2D[Int, V])
-        def size: Int = map.content.size
-        def asString(valuePrinter: V => Char): String = {
-            val Rectangle(min, max) = map.boundingBox
-            (min.y to max.y).map { y =>
-                (min.x to max.x).map { x =>
-                    map.content.get(Point2D(x, y)).map(valuePrinter).getOrElse(' ')
-                }.mkString
-            }.mkString("\n")
-        }
 }
 
 

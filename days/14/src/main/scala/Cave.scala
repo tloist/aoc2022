@@ -2,8 +2,6 @@ import Cave.parseLine
 import better.files.Resource
 import geo.*
 
-import scala.annotation.tailrec
-
 enum Field(val char: Char):
   case Air        extends Field('.')
   case Rock       extends Field('#')
@@ -11,6 +9,7 @@ enum Field(val char: Char):
   case Sand       extends Field('o')
 
 def linePoints(from: Point2D[Int], to: Point2D[Int]): Set[Point2D[Int]] =
+  require(from.x == to.x || from.y == to.y, s"Points $from and $to are not parallel to one of the axis!")
   to.ray((from between to).sign).takeWhile(_ != from).toSet ++ Seq(to, from)
 
 case class Cave(step: BigInt, map: Map2D[Int, Field], sandSource: Point2D[Int]) {
@@ -62,14 +61,12 @@ object Cave {
     val rocks = lines.flatMap { line =>
       if line.isEmpty then Set.empty
       else if line.size == 1 then Set(line.head)
-      else
-        line.tail.foldLeft((Set(line.head), line.head)) { (acc, p) =>
-          val (points, from) = acc
-          require(from.x == p.x || from.y == p.y, s"Points $from and $p are not parallel to one of the axis!")
-          (points ++ linePoints(from, p), p)
-        }._1
+      else line.tail.foldLeft((Set(line.head), line.head)) { (acc, p) =>
+        val (points, from) = acc
+        (points ++ linePoints(from, p), p)
+      }._1
     }.toSet
-    require(!rocks.contains(source), s"Illegal input: Sandsource is on a rock!")
+    require(!rocks.contains(source), s"Illegal input: Sand source is on a rock!")
     emptyCave(Rectangle.boundingBox(lines.flatten), source)
       .withFields(Field.Rock, rocks)
       .withFields(Field.SandSource, Seq(source))

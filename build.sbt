@@ -24,6 +24,7 @@ lazy val day12 = dayProject(12, "Hill Climbing Algorithm")
 lazy val day13 = dayProject(13, "Distress Signal")
   .settings(libraryDependencies ++= Seq(catsParse))
 lazy val day14 = dayProject(14, "Regolith Reservoir")
+lazy val day15 = dayProject(15, "Beacon Exclusion Zone")
 
 
 lazy val common = project
